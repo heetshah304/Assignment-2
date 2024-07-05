@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload Multiple Files</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .card {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 800px;
+        width: 100%;
+        text-align: center;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      h1 {
+        color: #444;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      input[type="file"] {
+        margin-bottom: 20px;
+        font-size: 16px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .buttons-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .uploaded-files {
+        margin-top: 20px;
+        text-align: left;
+      }
+
+      .uploaded-files h2 {
+        color: #444;
+        margin-bottom: 10px;
+      }
+
+      .uploaded-files ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .uploaded-files ul li {
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .image-gallery {
+        margin-top: 40px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .image-gallery h2 {
+        color: #444;
+        margin-bottom: 10px;
+      }
+
+      .image-gallery img {
+        margin: 10px;
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <h1>Upload Multiple Files</h1>
+      <form
+        id="uploadForm"
+        action="/upload-multiple"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <input type="file" id="fileInput" name="files" multiple />
+        <div class="buttons-container">
+          <button type="submit">Upload</button>
+          <button type="button" onclick="history.back()">Back</button>
+        </div>
+      </form>
+
+      <div class="uploaded-files" id="uploadedFiles">
+        <!-- Placeholder for uploaded files -->
+      </div>
+
+      <div class="image-gallery" id="imageGallery">
+        <!-- Placeholder for fetched images -->
+      </div>
+    </div>
+
+    <script>
+      // JavaScript to handle displaying uploaded files and fetching images
+      const uploadForm = document.getElementById("uploadForm");
+      const fileInput = document.getElementById("fileInput");
+      const uploadedFilesContainer = document.getElementById("uploadedFiles");
+      const imageGalleryContainer = document.getElementById("imageGallery");
+
+      // Event listener for form submission
+      uploadForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData();
+        for (const file of fileInput.files) {
+          formData.append("files", file);
+        }
+
+        try {
+          const response = await fetch("/upload-multiple", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to upload files");
+          }
+
+          const uploadedFiles = await response.text();
+          displayUploadedFiles(uploadedFiles.split(", "));
+        } catch (error) {
+          console.error("Error uploading files:", error);
+        }
+      });
+
+      // Function to display uploaded files
+      function displayUploadedFiles(filePaths) {
+        const filesList = document.createElement("ul");
+        filePaths.forEach((filePath) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = filePath;
+          filesList.appendChild(listItem);
+        });
+        uploadedFilesContainer.innerHTML = "<h2>Uploaded Files:</h2>";
+        uploadedFilesContainer.appendChild(filesList);
+      }
+
+      // Fetch and display images on page load
+      window.addEventListener("DOMContentLoaded", async () => {
+        try {
+          const apiKey = "your_api_key_here"; // Replace with your API key
+          const response = await fetch(`/fetch-images?apiKey=${apiKey}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch images");
+          }
+          const images = await response.json();
+          displayImages(images);
+        } catch (error) {
+          console.error("Error fetching images:", error);
+        }
+      });
+
+      // Function to display fetched images
+      function displayImages(images) {
+        imageGalleryContainer.innerHTML = "<h2>Fetched Images:</h2>";
+        images.forEach((imageUrl) => {
+          const img = document.createElement("img");
+          img.src = imageUrl;
+          imageGalleryContainer.appendChild(img);
+        });
+      }
+    </script>
+  </body>
+</html>

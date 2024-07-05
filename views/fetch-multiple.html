@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fetch Multiple Images</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        max-width: 600px; /* Increased max-width for better display */
+        width: 100%;
+        text-align: center;
+      }
+
+      h1 {
+        color: #444;
+        margin-bottom: 20px;
+      }
+
+      button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 10px;
+        width: 100%;
+        max-width: 200px; /* Added max-width for better button appearance */
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      #image-container {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      img {
+        border-radius: 10px;
+        margin: 10px; /* Adjusted margin for spacing between images */
+        max-width: 100%; /* Ensure images scale within container */
+        height: auto; /* Maintain aspect ratio */
+        max-height: 200px; /* Limit maximum height of images */
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <h1>Fetch Multiple Images</h1>
+      <div id="image-container"></div>
+      <button id="fetch-multiple-image">Fetch Multiple Images</button>
+      <button onclick="history.back()">Back</button>
+    </div>
+
+    <script>
+      document
+        .getElementById("fetch-multiple-image")
+        .addEventListener("click", () => {
+          fetch("/fetch-multiple")
+            .then((response) => response.json())
+            .then((imagePaths) => {
+              const imagesContainer =
+                document.getElementById("image-container");
+              imagesContainer.innerHTML = "";
+              imagePaths.forEach((imagePath) => {
+                const img = document.createElement("img");
+                img.src = imagePath;
+                img.alt = "Fetched Image"; // Provide alt text for accessibility
+                img.style.maxWidth = "100%";
+                img.style.height = "auto";
+                imagesContainer.appendChild(img);
+              });
+            })
+            .catch((error) => console.error("Error fetching images:", error));
+        });
+    </script>
+  </body>
+</html>
